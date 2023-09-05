@@ -35,8 +35,6 @@ def download_files_from_folder(service, folder_id, local_folder_path): # Drive�
             if os.path.exists(local_file_path):
                 modified_time_local = datetime.utcfromtimestamp(os.path.getmtime(local_file_path)).replace(tzinfo=timezone('UTC')) # modified_time_localをUTCに変換
                 if modified_time_local >= modified_time_drive:
-                    print(f"drive ->{modified_time_drive}")
-                    print(f"local ->{modified_time_local}")
                     print(f"{file_name} is up to date!. skip the download^_____^.")
                     continue
 
@@ -52,17 +50,17 @@ def download_files_from_folder(service, folder_id, local_folder_path): # Drive�
 
 
 # API認証
-credentials = Credentials.from_service_account_file("C:\\Developments\\GDriveClientKey.json", # ダウンロードしたAPI認証キーのjsonファイルのPath
+credentials = Credentials.from_service_account_file("C:\\path\\.json", # ダウンロードしたAPI認証キーのjsonファイルのPath
     scopes=["https://www.googleapis.com/auth/drive.readonly"])
 
 # Google Drive API クライアントを構築
 service = build('drive', 'v3', credentials=credentials)
 
 # ダウンロードするフォルダのID drive.google.com/drive/u/0/folders/ここの部分がフォルダID
-folder_id = '1HMwYqKipxx-UfiPz0GuKtR96P0FK240g'
+folder_id = ''
 
 # ローカルの保存先フォルダのパス
-local_folder_path = 'C:\\Developments\\UpdateFolder'
+local_folder_path = 'C:\\path\\to'
 
 # ダウンロード開始
 download_files_from_folder(service, folder_id, local_folder_path)

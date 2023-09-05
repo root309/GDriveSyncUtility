@@ -5,6 +5,7 @@ from datetime import datetime
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
+import argparse
 
 # もしローカルのmodifiedTimeがGoogle Driveのものと同じかそれより新しければTrueを返す関数
 def is_up_to_date(local_file_path, modified_time_drive):
@@ -56,19 +57,19 @@ def download_files_from_folder(service, folder_id, local_folder_path):
             download_file(service, file_id, local_file_path, file_name)
 
 
+# コマンドライン引数の設定
+parser = argparse.ArgumentParser(description='Download files from Google Drive folder.')
+parser.add_argument('--folder_id', required=True, help='The ID of the Google Drive folder.')
+parser.add_argument('--local_folder_path', required=True, help='The path to the local folder where files will be downloaded.')
+parser.add_argument('--credentials', required=True, help='The path to the Google API credentials JSON file.')
+args = parser.parse_args()
 
 # API認証
-credentials = Credentials.from_service_account_file("C:\\path\\.json", # ダウンロードしたAPI認証キーのjsonファイルのPath
+credentials = Credentials.from_service_account_file(args.credentials,  # コマンドライン引数から取得
     scopes=["https://www.googleapis.com/auth/drive.readonly"])
 
-# Google Drive API クライアントを構築
+# APIクライアント
 service = build('drive', 'v3', credentials=credentials)
 
-# ダウンロードするフォルダのID drive.google.com/drive/u/0/folders/ここの部分がフォルダID
-folder_id = 'here'
-
-# ローカルの保存先フォルダのパス
-local_folder_path = 'C:\\path\\to'
-
 # ダウンロード開始
-download_files_from_folder(service, folder_id, local_folder_path)
+download_files_from_folder(service, args.folder_id, args.local_folder_path)  # コマンドライン引数からパスを取得

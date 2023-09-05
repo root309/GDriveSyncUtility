@@ -1,6 +1,7 @@
 # Execution Steps
 
-#### Download and run the following command
+#### To use this feature, clone or fork this repository.
+#### Execute the following command in the cloned repository
 ```sh
 pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
 ```

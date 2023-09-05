@@ -17,10 +17,11 @@ def download_files_from_folder(service, folder_id, local_folder_path): # Drive�
     items = results.get('files', [])
 
     for item in items:
-            file_id = item['id'] # ファイルまたはフォルダの識別子
-            file_name = item['name'] # ファイルまたはフォルダの名前
-
-            modified_time_drive = datetime.fromisoformat(item['modifiedTime'][:-1])
+            file_id = item['id']
+            file_name = item['name']
+            # APIから取得されるmodifiedTimeは2021-09-01T12:34:56Zとなる。(modifiedTimeファイルの更新日時)
+            # ファイルが更新されたかどうかを判断する
+            modified_time_drive = datetime.fromisoformat(item['modifiedTime'][:-1]) # mofifiedTimeをオブジェクト化するにはZを削除する必要がある、そのための-1
             local_file_path = os.path.join(local_folder_path, file_name)
 
             if os.path.exists(local_file_path):

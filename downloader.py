@@ -59,8 +59,11 @@ def download_files_from_folder(service, folder_id, local_folder_path):
 
 # コマンドライン引数の設定
 parser = argparse.ArgumentParser(description='Download files from Google Drive folder.')
+# DriveのフォルダーリンクID
 parser.add_argument('--folder_id', required=True, help='The ID of the Google Drive folder.')
+# 同期させたいローカルディレクトリのパス
 parser.add_argument('--local_folder_path', required=True, help='The path to the local folder where files will be downloaded.')
+# ローカル上のAPIKeyのパス
 parser.add_argument('--credentials', required=True, help='The path to the Google API credentials JSON file.')
 args = parser.parse_args()
 

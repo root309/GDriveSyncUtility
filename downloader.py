@@ -6,6 +6,8 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import argparse
+from tqdm import tqdm
+
 
 # もしローカルのmodifiedTimeがGoogle Driveのものと同じかそれより新しければTrueを返す関数
 def is_up_to_date(local_file_path, modified_time_drive):
@@ -15,17 +17,23 @@ def is_up_to_date(local_file_path, modified_time_drive):
         return modified_time_local >= modified_time_drive
     return False
 
-def download_file(service, file_id, local_file_path, file_name):
+def download_file(service, file_id, local_file_path, file_name, file_size):
     # ファイルをダウンロードする
     print(f"Downloading... {file_name}.")
     request = service.files().get_media(fileId=file_id)
     fh = io.FileIO(local_file_path, 'wb')
     downloader = MediaIoBaseDownload(fh, request)
     done = False
-    while not done:
-        status, done = downloader.next_chunk()
-        print(f"Download completed! for -> {file_name}: {int(status.progress() * 100)}%.")
-# 引数で指定されたDriveのフォルダ内のすべてのフォルダとファイルをダウンロードする関数
+    current_progress = 0
+
+    with tqdm(total=file_size, unit='B', unit_scale=True, unit_divisor=1024, desc=file_name, leave=True) as pbar:
+        while not done:
+            status, done = downloader.next_chunk()
+            if status:
+                new_progress = status.resumable_progress
+                pbar.update(new_progress - current_progress)
+                current_progress = new_progress
+
 def download_files_from_folder(service, folder_id, local_folder_path):
     # Driveの特定のフォルダをダウンロードする関数
     if not os.path.exists(local_folder_path):
@@ -34,13 +42,14 @@ def download_files_from_folder(service, folder_id, local_folder_path):
     # フォルダ内のファイルとサブフォルダを取得
     results = service.files().list(
         q=f"'{folder_id}' in parents",
-        fields="files(id, name, modifiedTime, mimeType)").execute()
+        fields="files(id, name, modifiedTime, mimeType, size)").execute()
     items = results.get('files', [])
 
     for item in items:
         file_id = item['id']
         file_name = item['name']
         mime_type = item['mimeType']
+        file_size = int(item.get('size', 0))  # ファイルサイズが取得できない場合は 0とする
         local_file_path = os.path.join(local_folder_path, file_name)
         # すべてのファイルとサブフォルダに対して、ファイルであるかサブフォルダであるかを判断させる
         if mime_type == 'application/vnd.google-apps.folder':  # サブフォルダの場合
@@ -54,7 +63,7 @@ def download_files_from_folder(service, folder_id, local_folder_path):
                 print(f"{file_name} is up to date!. skip the download.")
                 continue
 
-            download_file(service, file_id, local_file_path, file_name)
+            download_file(service, file_id, local_file_path, file_name, file_size)
 
 
 # コマンドライン引数の設定

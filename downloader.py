@@ -5,8 +5,8 @@ from datetime import datetime
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-import argparse
 from tqdm import tqdm
+from dotenv import load_dotenv
 
 
 # もしローカルのmodifiedTimeがGoogle Driveのものと同じかそれより新しければTrueを返す関数
@@ -65,23 +65,22 @@ def download_files_from_folder(service, folder_id, local_folder_path):
 
             download_file(service, file_id, local_file_path, file_name, file_size)
 
+# 環境変数をロード
+load_dotenv()
 
-# コマンドライン引数の設定
-parser = argparse.ArgumentParser(description='Download files from Google Drive folder.')
-# DriveのフォルダーリンクID
-parser.add_argument('--folder_id', required=True, help='The ID of the Google Drive folder.')
-# 同期させたいローカルディレクトリのパス
-parser.add_argument('--local_folder_path', required=True, help='The path to the local folder where files will be downloaded.')
-# ローカル上のAPIKeyのパス
-parser.add_argument('--credentials', required=True, help='The path to the Google API credentials JSON file.')
-args = parser.parse_args()
+# 環境変数から値を取得
+folder_id = os.getenv('FOLDER_ID')
+local_folder_path = os.getenv('LOCAL_FOLDER_PATH')
+credentials_path = os.getenv('CREDENTIALS_PATH')
 
 # API認証
-credentials = Credentials.from_service_account_file(args.credentials,  # コマンドライン引数から取得
-    scopes=["https://www.googleapis.com/auth/drive.readonly"])
+credentials = Credentials.from_service_account_file(
+    credentials_path,  # 環境変数から取得
+    scopes=["https://www.googleapis.com/auth/drive.readonly"]
+)
 
 # APIクライアント
 service = build('drive', 'v3', credentials=credentials)
 
 # ダウンロード開始
-download_files_from_folder(service, args.folder_id, args.local_folder_path)  # コマンドライン引数からパスを取得
+download_files_from_folder(service, folder_id, local_folder_path)  # 環境変数からパスを取得

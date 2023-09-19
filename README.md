@@ -4,7 +4,7 @@
 ### First, configure the Google Drive API.
 #### To use this feature, clone or fork this repository.
 ## `.env` example
-Place `.env` file to repository root that contains `FOLDER_ID`, `LOCAL_FOLDER_PATH`,`CREDENTIALS_PATH`.
+Place `.env` file to repository root that contains `FOLDER_ID`, `LOCAL_FOLDER_PATH`,      `CREDENTIALS_PATH`.
 
 ```
 FOLDER_ID=
